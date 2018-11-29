@@ -15,5 +15,12 @@ First we need to start a local Kafka ecosystem to use KSQL from the Jupyter note
 confluent start ksql-server
 ----
 
-TODO 
+== Open Jupyter notebook
 
+[source,bash]
+----
+// Open Jupyter and select the notebook 'live-demo___python-jupyter-apache-kafka-ksql-tensorflow-keras.adoc'
+jupyter notebook
+----
+
+Follow the steps in the notebook to run the demo.
