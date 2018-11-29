@@ -1,0 +1,19 @@
+= Live Demo: Python, Jupyter notebook, TensorFlow, Keras, Apache Kafka and KSQL
+
+Kai Waehner <kontakt@kai-waehner.de>
+29 Nov 2018
+
+This script assumes that all components like Zookeeper, Kafka, KSQL, Jupyter) use default values.
+
+== Starting backend services
+
+First we need to start a local Kafka ecosystem to use KSQL from the Jupyter notebook.
+
+[source,bash]
+----
+// Start KSQL with Kafka and other dependencies
+confluent start ksql-server
+----
+
+TODO 
+
