@@ -7,12 +7,15 @@ This script assumes that all components like Zookeeper, Kafka, KSQL, Jupyter) us
 
 == Starting backend services
 
-First we need to start a local Kafka ecosystem to use KSQL from the Jupyter notebook.
+First we need to start a local Kafka ecosystem to use KSQL from the Jupyter notebook. We also start a generator to create a continous feed of streaming data.
 
 [source,bash]
 ----
 // Start KSQL with Kafka and other dependencies
-confluent start ksql-server
+CONFLUENT_HOME# confluent start ksql-server
+
+// Start data generator
+CONFLUENT_HOME# ksql-datagen quickstart=users format=json topic=users maxInterval=1000  propertiesFile=etc/ksql/datagen.properties
 ----
 
 == Open Jupyter notebook
