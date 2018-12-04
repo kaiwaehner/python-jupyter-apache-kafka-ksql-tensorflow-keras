@@ -27,3 +27,28 @@ jupyter notebook
 ----
 
 Follow the steps in the notebook to run the demo.
+
+
+== Jupyter / pip / conda commands
+
+Some common commands for Jupyter, pip, conda to manage packages like ksql-python:
+
+[source,bash]
+----
+
+pip info
+
+pip install ksql
+
+conda info
+
+source activate ksql-python
+
+conda install tensorflow
+
+conda remove -n ksql-server scipy
+----
+
+
+
+
