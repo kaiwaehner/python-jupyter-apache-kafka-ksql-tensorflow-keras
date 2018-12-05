@@ -42,6 +42,7 @@ pip install ksql
 
 conda info
 
+conda info --envs
 source activate ksql-python
 
 conda install tensorflow
