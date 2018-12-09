@@ -78,7 +78,7 @@ plt.legend(loc='upper right')
 plt.title("Amount by percentage of transactions (transactions \$200+)")
 plt.xlabel("Transaction amount (USD)")
 plt.ylabel("Percentage of transactions (%)");
-plt.show()
+#plt.show()
 
 
 
@@ -91,7 +91,7 @@ plt.title("Percentage of transactions by hour")
 plt.xlabel("Transaction time as measured from first transaction in the dataset (hours)")
 plt.ylabel("Percentage of transactions (%)");
 #plt.hist((df.Time/(60*60)),bins)
-plt.show()
+#plt.show()
 
 
 
@@ -103,7 +103,7 @@ plt.title("Amount of transaction by hour")
 plt.xlabel("Transaction time as measured from first transaction in the dataset (hours)")
 plt.ylabel('Amount (USD)')
 plt.legend(loc='upper right')
-plt.show()
+#plt.show()
 
 
 
@@ -143,19 +143,20 @@ train_x.shape
 # nb_epoch = 100
 # batch_size = 128
 nb_epoch = 5
-batch_size = 32
+batch_size = 128
 
 input_dim = train_x.shape[1] #num of columns, 30
 encoding_dim = 14
 hidden_dim = int(encoding_dim / 2) #i.e. 7
 learning_rate = 1e-7
+# learning_rate = 1e-5
 
-input_layer = Input(shape=(input_dim, ))
-encoder = Dense(encoding_dim, activation="tanh", activity_regularizer=regularizers.l1(learning_rate))(input_layer)
-encoder = Dense(hidden_dim, activation="relu")(encoder)
-decoder = Dense(hidden_dim, activation='tanh')(encoder)
-decoder = Dense(input_dim, activation='relu')(decoder)
-autoencoder = Model(inputs=input_layer, outputs=decoder)
+input_layer = Input(shape=(input_dim, ), name='CreditCardInput')
+encoder = Dense(encoding_dim, activation='tanh', name='Encoder1', activity_regularizer=regularizers.l1(learning_rate))(input_layer)
+encoder = Dense(hidden_dim, activation='relu', name='Encoder2')(encoder)
+decoder = Dense(hidden_dim, activation='tanh', name='Decoder1')(encoder)
+decoder = Dense(input_dim, activation='relu', name='Decoder2')(decoder)
+autoencoder = Model(inputs=input_layer, outputs=decoder, name='FraudDetectionAutoencoder')
 
 
 
@@ -172,7 +173,7 @@ cp = ModelCheckpoint(filepath="models/autoencoder_fraud.h5",
                                verbose=0)
 
 tb = TensorBoard(log_dir='logs/keras-fraud',
-                histogram_freq=0,
+                histogram_freq=1,
                 write_graph=True,
                 write_images=True)
 
@@ -183,11 +184,6 @@ history = autoencoder.fit(train_x, train_x,
                     validation_data=(test_x, test_x),
                     verbose=1,
                     callbacks=[cp, tb]).history
-
-
-
-
-
 
 autoencoder = load_model('models/autoencoder_fraud.h5')
 
@@ -201,7 +197,7 @@ plt.title('Model loss')
 plt.ylabel('Loss')
 plt.xlabel('Epoch')
 #plt.ylim(ymin=0.70,ymax=1)
-plt.show()
+#plt.show()
 
 
 
@@ -230,7 +226,7 @@ plt.legend(loc='lower right')
 plt.title('Receiver operating characteristic curve (ROC)')
 plt.ylabel('True Positive Rate')
 plt.xlabel('False Positive Rate')
-plt.show()
+#plt.show()
 
 
 
@@ -241,7 +237,7 @@ plt.plot(recall_rt, precision_rt, linewidth=5, label='Precision-Recall curve')
 plt.title('Recall vs Precision')
 plt.xlabel('Recall')
 plt.ylabel('Precision')
-plt.show()
+#plt.show()
 
 
 
@@ -253,7 +249,7 @@ plt.title('Precision and recall for different threshold values')
 plt.xlabel('Threshold')
 plt.ylabel('Precision/Recall')
 plt.legend()
-plt.show()
+#plt.show()
 
 
 
@@ -272,7 +268,7 @@ ax.legend()
 plt.title("Reconstruction error for different classes")
 plt.ylabel("Reconstruction error")
 plt.xlabel("Data point index")
-plt.show();
+#plt.show();
 
 
 
@@ -286,4 +282,4 @@ sns.heatmap(conf_matrix, xticklabels=LABELS, yticklabels=LABELS, annot=True, fmt
 plt.title("Confusion matrix")
 plt.ylabel('True class')
 plt.xlabel('Predicted class')
-plt.show()
+#plt.show()
