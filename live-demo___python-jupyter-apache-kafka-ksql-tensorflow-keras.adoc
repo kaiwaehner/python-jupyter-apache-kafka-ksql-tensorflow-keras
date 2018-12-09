@@ -48,6 +48,9 @@ source activate ksql-python
 conda install tensorflow
 
 conda remove -n ksql-server scipy
+
+tensorboard --logdir logs
+tensorboard --logdir=logs/keras-fraud
 ----
 
 
