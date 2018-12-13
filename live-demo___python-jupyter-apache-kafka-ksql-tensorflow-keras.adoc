@@ -3,7 +3,7 @@
 Kai Waehner <kontakt@kai-waehner.de>
 29 Nov 2018
 
-This script assumes that all components like Zookeeper, Kafka, KSQL, Jupyter) use default values.
+This script assumes that all components like Zookeeper, Kafka, Connect, KSQL, Jupyter) use default values.
 
 == Starting backend services
 
@@ -12,9 +12,11 @@ First we need to start a local Kafka ecosystem to use KSQL from the Jupyter note
 [source,bash]
 ----
 // Start KSQL with Kafka and other dependencies
+CONFLUENT_HOME# confluent start connect
 CONFLUENT_HOME# confluent start ksql-server
 
-// Start data generator
+// TODO 
+// Start data generator (continuous flow of data instead of CSV file)
 CONFLUENT_HOME# ksql-datagen quickstart=users format=json topic=users maxInterval=1000  propertiesFile=etc/ksql/datagen.properties
 ----
 
