@@ -15,7 +15,18 @@ Building a demo which combines
 
 ## Step-by-step guide
 
-Check out [these steps](https://github.com/kaiwaehner/python-jupyter-apache-kafka-ksql-tensorflow-keras/blob/master/live-demo___python-jupyter-apache-kafka-ksql-tensorflow-keras.adoc) to start the backend and notebook. The main demo is running in the Jupyter notebook then.
+We will do the following:
+
+1) Data Integration (Kafka Connect): Integrate a stream of data from CSV file or continuous data stream (in real world you can connect directly to an existing Kafka stream from the Jupyter notebook)
+2) Data Preprocessing (KSQL): Preprocess the data, e.g. filter, anonymize, aggreate / concatenate
+3) ML-specific preprocessing (NumPy, Scikit-learn): Normalize, split train / test data
+4) Train model (TensorFlow + Keras)
+5) Deploy model (KSQL + Tensorflow)
+6) Monitor model inference (KSQL)
+
+While all of this can be done in a Jupyter notebook for interactive analysis, we can then deploy the same pipeline to production at scale. For instance, you can re-use the KSQL preprocessing statements and run them in your production infrastructure to to model inference with KSQL and the TensorFlow model at scale.
+
+Check out [this document](https://github.com/kaiwaehner/python-jupyter-apache-kafka-ksql-tensorflow-keras/blob/master/live-demo___python-jupyter-apache-kafka-ksql-tensorflow-keras.adoc) to start the backend and notebook. The main demo is running in the Jupyter notebook then and shows all above steps.
 
 
 ## Autoencoder for Credit Card Fraud Detection build with Keras and TensorFlow
@@ -51,3 +62,5 @@ The Python tool [Keras to TensorFlow](https://github.com/amir-abdi/keras_to_tens
                 python keras_to_tensorflow.py --input_model="/Users/kai.waehner/git-projects/python-jupyter-apache-kafka-ksql-tensorflow-keras/models/autoencoder_fraud.h5" --output_model="/Users/kai.waehner/git-projects/python-jupyter-apache-kafka-ksql-tensorflow-keras/models/autoencoder_fraud.pb"
 
 The tool freezes the nodes (converts all TF variables to TF constants), and saves the inference graph and weights into a binary protobuf (.pb) file.
+
+TODO Use keras.estimator.model_to_estimator (included in tf.keras)? Example: https://www.kaggle.com/yufengg/emnist-gpu-keras-to-tf
