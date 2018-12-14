@@ -7,7 +7,8 @@ This script assumes that all components like Zookeeper, Kafka, Connect, KSQL, Ju
 
 == Starting backend services
 
-First we need to start a local Kafka ecosystem to use KSQL from the Jupyter notebook. We also start a generator to create a continous feed of streaming data.
+First we need to start a local Kafka ecosystem to use KSQL from the Jupyter notebook. We also need to create some test data:
+Either start a data generator to create a continous feed of streaming data or integrate with a file (via Kafka Connect). As this is not part of the ML related tasks, but just to get some test data into a Kafka topic, we do it outside of Jupyter:
 
 [source,bash]
 ----
@@ -74,23 +75,27 @@ Follow the steps in the notebook to run the demo.
 
 == Jupyter / pip / conda commands
 
-Some common commands for Jupyter, pip, conda to manage packages like ksql-python:
+Some common commands for Jupyter, pip, conda to manage Python packages like ksql-python:
 
 [source,bash]
 ----
 
-pip info
-
-pip install ksql
 
 conda info
-
+conda create --name ksql-python python=3.4 tensorflow ksql
 conda info --envs
+
+// Add to .bash_profile
 source activate ksql-python
 
-conda install tensorflow
+// Add Python packages
+conda install --name ksql-python tensorflow numpy pandas keras seaborn matplotlib scipy scikit-learn
+conda remove -n ksql scipy
 
-conda remove -n ksql-server scipy
+conda install -n ksql-python pip
+pip info
+pip install ksql 
+pip install pickle 
 
 tensorboard --logdir logs
 tensorboard --logdir=logs/keras-fraud
