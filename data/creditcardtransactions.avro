@@ -1,0 +1,31 @@
+{
+        "namespace": "streams",
+        "name": "creditcardtransactions",
+        "type": "record",
+        "fields": [
+                {"name": "Time", "type": {
+                    "type": "long",
+                    "arg.properties": {
+                       "iteration": { "start": 1, "step": 1}
+                    }
+                }},
+                {"name": "V1", "type": {
+                    "type": "double",
+                    "arg.properties": {
+                        "regex": "[1-9].[0-9][0-9]"
+                    }
+                }},
+                {"name": "Amount", "type": {
+                    "type": "double",
+                    "arg.properties": {
+                        "regex": "[1-9].[0-9][0-9]"
+                    }
+                }},
+                {"name": "Class", "type": {
+                    "type": "int",
+                    "arg.properties": {
+                        "regex": "[0-1]"
+                    }
+                }}
+        ]
+}
