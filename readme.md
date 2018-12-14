@@ -8,10 +8,16 @@ Building a demo which combines
 
 ## Requirements
 
-- Python (tested with 2.7)
+- Python (tested with 3.6)
 - Java 8+ (tested with Java 8)
 - [Confluent Platform 5.0+ using Kafka + KSQL](https://www.confluent.io/download/) (tested with 5.0)
 - [ksql-python](https://github.com/bryanyang0528/ksql-python) (tested with Github release 5.x released on 2018-10-12)
+
+### Issues with ksql-python installation?
+
+If you have problems installing ksql-python in your environment via 'pip install ksql', use the commands described in the Github project instead. 
+
+After installation, for some reason, the 'from ksql import KSQLAPI' statement did not work with Python 2.7.x in my Jupyter notebook (but in Mac terminal), so I used Python 3.6 (which also worked in Jupyter).
 
 ## Step-by-step guide
 
