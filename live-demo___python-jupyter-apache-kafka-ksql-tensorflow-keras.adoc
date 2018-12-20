@@ -16,6 +16,12 @@ Either start a data generator to create a continous feed of streaming data or in
 confluent start connect
 confluent start ksql-server
 
+// Create Kafka topic
+kafka-topics --zookeeper localhost:2181 --create --topic creditcardfraud --partitions 3 --replication-factor 1
+
+
+
+
 // TODO alternative: Create topic (to have no dependency to Kafka Connect in the demo)?
 
 // Start File Connector to consume data from CSV file:
@@ -41,15 +47,118 @@ confluent consume creditcardfraud --from-beginning
 
 confluent produce creditcardfraud
 
-1,0,-1.3598071336738,-0.0727811733098497,2.53634673796914,1.37815522427443,-0.338320769942518,0.462387777762292,0.239598554061257,0.0986979012610507,0.363786969611213,0.0907941719789316,-0.551599533260813,-0.617800855762348,-0.991389847235408,-0.311169353699879,1.46817697209427,-0.470400525259478,0.207971241929242,0.0257905801985591,0.403992960255733,0.251412098239705,-0.018306777944153,0.277837575558899,-0.110473910188767,0.0669280749146731,0.128539358273528,-0.189114843888824,0.133558376740387,-0.0210530534538215,149.62,"0"
+// Message columns
+"Id","Time","V1","V2","V3","V4","V5","V6","V7","V8","V9","V10","V11","V12","V13","V14","V15","V16","V17","V18","V19","V20","V21","V22","V23","V24","V25","V26","V27","V28","Amount","Class"
+
+
+1,"2018-12-18T12:00:00Z","Kai",0,-1.3598071336738,-0.0727811733098497,2.53634673796914,1.37815522427443,-0.338320769942518,0.462387777762292,0.239598554061257,0.0986979012610507,0.363786969611213,0.0907941719789316,-0.551599533260813,-0.617800855762348,-0.991389847235408,-0.311169353699879,1.46817697209427,-0.470400525259478,0.207971241929242,0.0257905801985591,0.403992960255733,0.251412098239705,-0.018306777944153,0.277837575558899,-0.110473910188767,0.0669280749146731,0.128539358273528,-0.189114843888824,0.133558376740387,-0.0210530534538215,149.62,"0"
+
+CREATE STREAM creditcardfraud_enhanced  (Id bigint, timestamp varchar, userid varchar,  Time int, V1 double, V2 double, V3 double, V4 double, V5 double, V6 double, V7 double, V8 double, V9 double, V10 double, V11 double, V12 double, V13 double, V14 double, V15 double, V16 double, V17 double, V18 double, V19 double, V20 double, V21 double, V22 double, V23 double, V24 double, V25 double, V26 double, V27 double, V28 double, Amount double, Class string) WITH (kafka_topic='creditcardfraud', value_format='DELIMITED');
+
+// make sure that you key your source topic for user data, otherwise you have show rekeying it KSQL which is cumbersome
+1:{user_id:1, class:platinum}
+2:{user_id:2, class:bronze}
+// console-producer --key=: 
+CREATE TABLE USERS (USERID, CITY, EMAIL,  CLASS) WITH (KAFKA_TOPIC='SERS',KEY='USERID')
+// validate by SELECT ROWKEY from <table> 
+// also in PRINT 
 
 // kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic creditcardfraud --from-beginning
 
 // confluent consume creditcardfraud --value-format avro --from-beginning
 
+// TODO Use AVRO as option (or at least mention this option)... Or is this making it more complex for the data scientist audience instead of just using DELIMITED?
 
 //KSQL
-CREATE STREAM creditcardfraud (Time int, V1 double, V2 double, V3 double, V4 double, V5 double, V6 double, V7 double, V8 double, V9 double, V10 double, V11 double, V12 double, V13 double, V14 double, V15 double, V16 double, V17 double, V18 double, V19 double, V20 double, V21 double, V22 double, V23 double, V24 double, V25 double, V26 double, V27 double, V28 double, Amount double, Class string) WITH (kafka_topic='creditcardfraud', value_format='DELIMITED');
+// shows dropping columns (e.g. Timestamp, ID, user etc) 
+// shows dropping rows (wher V1 is greater than 5 and V2 isnot null and usernae starts with Kai
+// also switch to Avro & illustrate using bespoke kafka topic name 
+CREATE STREAM creditcardfraud WITH (VALUE_FORMAT='AVRO', KAFKA_TOPIC='fraud_prep') AS SELECT Time,  V1 , V2 , V3 , V4 , V5 , V6 , V7 , V8 , V9 , V10 , V11 , V12 , V13 , V14 , V15 , V16 , V17 , V18 , V19 , V20 , V21 , V22 , V23 , V24 , V25 , V26 , V27 , V28 , Amount , Class FROM creditcardfraud_enahnced c INNER JOIN USERS u on c.userid = u.userid WHERE V1 > 5 AND V2 IS NOT NULL AND u.CITY LIKE 'Premium%';
+
+// DESCRIBE creditcardfraud;
+// ^ show the schema
+// DESCRIBE EXTENDED creditcardfraud;
+// ^ show the schema and underlying query and the nuebr of msgs processed -> this is an app we've built and it's continually running
+
+
+// Create a delimited version of this stream
+// Now app that *needs* csv gets it but other users of the data benefit from the explictly decalred schema and dont' have to type it out each time
+CREATE STREAM creditcardfraud_csv WITH (VALUE_FORMAT='DELIMITED') AS SELECT * FROM creditcardfraud
+
+// KSQL => Extended CSV
+Add column to:
+
+SELECT 'hsbc.csv' AS SOURCE_FILE, * FROM creditcardfraud;
+
+Remove NAs / No values
+
+SELECT * FROM creditcardfraud WHERE V1 IS NOT NULL;
+SELECT * FROM creditcardfraud WHERE (V1 IS NOT NULL AND V2 IS NOT NULL);
+
+Restrict date range
+// there isn't <NOW> function
+// NOW - 1HOUR doesn't exist :(
+// i.. you have to hard code the epoch
+SELECT * FROM credicardfraud WHERE ROWTIME > {epoch value}
+
+
+Timestamp handling
+// See ATM fraud slides for illustration Slides: https://speakerdeck.com/rmoff/atm-fraud-detection-with-kafka-and-ksql
+Code: https://github.com/confluentinc/demo-scene/blob/master/ksql-atm-fraud-detection/ksql-atm-fraud-detection-README.adoc
+// this changes the way KSQL parses the timestamp of the message and uses a timestamp col from the payload - very important for time-based aggregations & time-based joins (e.g. stream-stream windowing)
+CREATE STREAM credicardfraud … WITH (TIMESTAMP='timestamp_col',TIMESTAMP_FORMAT='YYYY etc')
+ROWTIME then inherits tiemstamp_col _not_ kafka timestamp
+
+SELECT TIMESTAMPTOSTRING(ROWTIME, 'yyyy-MM-dd HH:mm:ss Z'), ROWTIME , timestamp_col from creditcardfraud limit 1;
+
+// or you can leave the timestamp of the mesasage alone and just filter as required
+// useful for standard data prep & filtering 
+SELECT * FROM creditcardfraud where STRINGTOTIMESTAMP(timestamp_col,'YYYY etc') > {epoch value}
+
+Drop column / row
+
+// drop row -> WHERE clause
+
+
+se
+// Concatenate
+
+SELECT COL1 + COL2 AS NEW_COL FROM MY_STREAM;
+SELECT CAST(COL1 AS VARCHAR) + CAST(COL2 AS VARCHAR) FROM MY_STREAM;
+SELECT COL1 || ': static value : ' || COL2 AS NEW_COL // not sure if this is still supported
+SELECT CONCAT(COL1,COL2) // SQL users might expect it but it's ugly
+
+// splitting a col - can't be done
+// there is no INSTR/INDEXOF, there's no SPLIT
+// SELECT SUBSTRING(FULL_NAME,1,INDEXOF(FULL_NAME,' '))
+// -> please go and upvote these on github
+SELECT SUBSTR(FULL_NAME, 1,5) FROM MY_STREAM
+// COALLESCE / CASE are the other huge missing ones
+https://github.com/confluentinc/ksql/issues/620
+
+// Anonymization
+
+https://github.com/confluentinc/ksql-recipes-try-it-at-home/tree/master/data-masking
+
+
+// Merge / Join data frames
+
+// e.g. two sources of data with the same structure
+
+CREATE STREAM website_source (SAME SCHEMA) (WITH KAFAK_TOPIC='from website')
+CREATE STREAM api_source (SAME SCHEMA) (WITH KAFAK_TOPIC='api')
+// also different geos etc
+
+CREATE STREAM UNIFIED AS SELECT 'website' AS SOURCE, * FROM WEBSITE_SOURCE;
+INSERT INTO UNIFIED AS SELECT 'api' AS SOURCE, * FROM API_SOURCE; 
+
+// Single resultig stream (-> kafka topic) but continually popualted with data from BOTH sources
+// basically UNION of data sets
+
+
+What else?
+
+CREATE STREAM creditcardfraud (Id bigint, Time int, V1 double, V2 double, V3 double, V4 double, V5 double, V6 double, V7 double, V8 double, V9 double, V10 double, V11 double, V12 double, V13 double, V14 double, V15 double, V16 double, V17 double, V18 double, V19 double, V20 double, V21 double, V22 double, V23 double, V24 double, V25 double, V26 double, V27 double, V28 double, Amount double, Class string) WITH (kafka_topic='creditcardfraud', value_format='DELIMITED');
 
 describe creditcardfraud;
 
