@@ -1,14 +1,18 @@
 = Live Demo: Python, Jupyter notebook, TensorFlow, Keras, Apache Kafka and KSQL
 
 Kai Waehner <kontakt@kai-waehner.de>
-29 Nov 2018
+27 Dec 2018
 
 This script assumes that all components like Zookeeper, Kafka, Connect, KSQL, Jupyter) use default values.
+
+We use the following test data (each row is one single payment):
+
+Id bigint, Timestamp varchar, User varchar, Time int, V1 double, V2 double, V3 double, V4 double, V5 double, V6 double, V7 double, V8 double, V9 double, V10 double, V11 double, V12 double, V13 double, V14 double, V15 double, V16 double, V17 double, V18 double, V19 double, V20 double, V21 double, V22 double, V23 double, V24 double, V25 double, V26 double, V27 double, V28 double, Amount double, Class string
 
 == Starting backend services
 
 First we need to start a local Kafka ecosystem to use KSQL from the Jupyter notebook. We also need to create some test data:
-Either start a data generator to create a continous feed of streaming data or integrate with a file (via Kafka Connect). As this is not part of the ML related tasks, but just to get some test data into a Kafka topic, we do it outside of Jupyter:
+Either start a data generator to create a continous feed of streaming data or integrate with a file (via Kafka Connect).This is not part of the ML related tasks, but just to get some test data into a Kafka topic:
 
 [source,bash]
 ----
@@ -17,21 +21,29 @@ confluent start connect
 confluent start ksql-server
 
 // Create Kafka topic
-kafka-topics --zookeeper localhost:2181 --create --topic creditcardfraud --partitions 3 --replication-factor 1
+kafka-topics --zookeeper localhost:2181 --create --topic creditcardfraud_source --partitions 3 --replication-factor 1
 
+// Produce test data manually
+confluent produce creditcardfraud_source
 
+1,"2018-12-18T12:00:00Z","Kai",0,-1.3598071336738,-0.0727811733098497,2.53634673796914,1.37815522427443,-0.338320769942518,0.462387777762292,0.239598554061257,0.0986979012610507,0.363786969611213,0.0907941719789316,-0.551599533260813,-0.617800855762348,-0.991389847235408,-0.311169353699879,1.46817697209427,-0.470400525259478,0.207971241929242,0.0257905801985591,0.403992960255733,0.251412098239705,-0.018306777944153,0.277837575558899,-0.110473910188767,0.0669280749146731,0.128539358273528,-0.189114843888824,0.133558376740387,-0.0210530534538215,149.62,"0"
 
+// Keep last column empty => This is sending NULL => Gets filtered out as part of the  preprocessing stream!
+1,"2018-12-18T12:00:00Z","Kai",0,-1.3598071336738,-0.0727811733098497,2.53634673796914,1.37815522427443,-0.338320769942518,0.462387777762292,0.239598554061257,0.0986979012610507,0.363786969611213,0.0907941719789316,-0.551599533260813,-0.617800855762348,-0.991389847235408,-0.311169353699879,1.46817697209427,-0.470400525259478,0.207971241929242,0.0257905801985591,0.403992960255733,0.251412098239705,-0.018306777944153,0.277837575558899,-0.110473910188767,0.0669280749146731,0.128539358273528,-0.189114843888824,0.133558376740387,-0.0210530534538215,149.62,
+----
 
-// TODO alternative: Create topic (to have no dependency to Kafka Connect in the demo)?
+As alternative, you can consume test data from CSV file 'creditcard_extended.csv':
 
+[source,bash]
+----
 // Start File Connector to consume data from CSV file:
 curl -s -X POST -H 'Content-Type: application/json' http://localhost:8083/connectors -d '{
     "name" : "file-source",
 "config" : {
     "connector.class" : "org.apache.kafka.connect.file.FileStreamSourceConnector",
     "tasks.max" : "1",
-    "file": "/Users/kai.waehner/git-projects/python-jupyter-apache-kafka-ksql-tensorflow-keras/data/creditcard_small.csv",
-    "topic": "creditcardfraud",
+    "file": "/Users/kai.waehner/git-projects/python-jupyter-apache-kafka-ksql-tensorflow-keras/data/creditcard_extended.csv",
+    "topic": "creditcardfraud_source",
     "name": "file-source",
     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
     "value.converter": "org.apache.kafka.connect.storage.StringConverter"
@@ -40,26 +52,55 @@ curl -s -X POST -H 'Content-Type: application/json' http://localhost:8083/connec
 
 confluent status file-source
 curl -s -X DELETE localhost:8083/connectors/file-source
+----
 
-// Check if the connector is reading the data:
+== Demo in Jupyter Notebook
+Now go to the Jupyter Notebook 'python-jupyter-apache-kafka-ksql-tensorflow-keras.ipynb' to do the preprocessing and interactive analysis with Python + KSQL, then the model training with Python + Keras.
 
-confluent consume creditcardfraud --from-beginning
+[source,bash]
+----
+// Terminal
+jupyter notebook
+----
 
-confluent produce creditcardfraud
+== Commands to create KSQL Streams and to consume events
+Some options to consume the data for testing:
 
-// Message columns
-"Id","Time","V1","V2","V3","V4","V5","V6","V7","V8","V9","V10","V11","V12","V13","V14","V15","V16","V17","V18","V19","V20","V21","V22","V23","V24","V25","V26","V27","V28","Amount","Class"
+[source,bash]
+----
+
+// Terminal
+confluent consume creditcardfraud_source --from-beginning
+
+// KSQL-CLI 
+SELECT * FROM creditcardfraud_source;
+----
+
+KSQL commands (if you want to run it from KSQL CLI instead of using the Jupyter Notebook)
+
+[source,bash]
+----
+CREATE STREAM creditcardfraud_source  (Id bigint, Timestamp varchar, User varchar,  Time int, V1 double, V2 double, V3 double, V4 double, V5 double, V6 double, V7 double, V8 double, V9 double, V10 double, V11 double, V12 double, V13 double, V14 double, V15 double, V16 double, V17 double, V18 double, V19 double, V20 double, V21 double, V22 double, V23 double, V24 double, V25 double, V26 double, V27 double, V28 double, Amount double, Class string) WITH (kafka_topic='creditcardfraud_source', value_format='DELIMITED', KEY='Id');
+
+// Preprocessed KSQL Stream:
+// Filter columns
+// Filter messages where class is empty
+// Change data format to Avro
+CREATE STREAM creditcardfraud_preprocessed_avro WITH (VALUE_FORMAT='AVRO', KAFKA_TOPIC='creditcardfraud_preprocessed_avro') AS SELECT Time,  V1 , V2 , V3 , V4 , V5 , V6 , V7 , V8 , V9 , V10 , V11 , V12 , V13 , V14 , V15 , V16 , V17 , V18 , V19 , V20 , V21 , V22 , V23 , V24 , V25 , V26 , V27 , V28 , Amount , Class FROM creditcardfraud_source WHERE Class IS NOT NULL;
 
 
-1,"2018-12-18T12:00:00Z","Kai",0,-1.3598071336738,-0.0727811733098497,2.53634673796914,1.37815522427443,-0.338320769942518,0.462387777762292,0.239598554061257,0.0986979012610507,0.363786969611213,0.0907941719789316,-0.551599533260813,-0.617800855762348,-0.991389847235408,-0.311169353699879,1.46817697209427,-0.470400525259478,0.207971241929242,0.0257905801985591,0.403992960255733,0.251412098239705,-0.018306777944153,0.277837575558899,-0.110473910188767,0.0669280749146731,0.128539358273528,-0.189114843888824,0.133558376740387,-0.0210530534538215,149.62,"0"
+----
 
-CREATE STREAM creditcardfraud_enhanced  (Id bigint, timestamp varchar, userid varchar,  Time int, V1 double, V2 double, V3 double, V4 double, V5 double, V6 double, V7 double, V8 double, V9 double, V10 double, V11 double, V12 double, V13 double, V14 double, V15 double, V16 double, V17 double, V18 double, V19 double, V20 double, V21 double, V22 double, V23 double, V24 double, V25 double, V26 double, V27 double, V28 double, Amount double, Class string) WITH (kafka_topic='creditcardfraud', value_format='DELIMITED');
+== Further possible KSQL preprocessing steps (not integrated into Jupyter and the demo yet)
+
+[source,bash]
+----
 
 // make sure that you key your source topic for user data, otherwise you have show rekeying it KSQL which is cumbersome
 1:{user_id:1, class:platinum}
 2:{user_id:2, class:bronze}
 // console-producer --key=: 
-CREATE TABLE USERS (USERID, CITY, EMAIL,  CLASS) WITH (KAFKA_TOPIC='SERS',KEY='USERID')
+CREATE TABLE USERS (USERID, CITY, EMAIL, CLASS) WITH (KAFKA_TOPIC='USERS',KEY='USERID')
 // validate by SELECT ROWKEY from <table> 
 // also in PRINT 
 
@@ -176,18 +217,15 @@ java.lang.String cannot be cast to org.apache.avro.generic.GenericRecord
 ksql-datagen quickstart=users format=json topic=users maxInterval=1000 propertiesFile=etc/ksql/datagen.properties
 ----
 
-== Open Jupyter notebook
+== Helper commands for Python, Conda, Jupyter, pip
+
+Open Jupyter notebook
 
 [source,bash]
 ----
 // Open Jupyter and select the notebook 'live-demo___python-jupyter-apache-kafka-ksql-tensorflow-keras.adoc'
 jupyter notebook
 ----
-
-Follow the steps in the notebook to run the demo.
-
-
-== Jupyter / pip / conda commands
 
 Some common commands for Jupyter, pip, conda to manage Python packages like ksql-python:
 
