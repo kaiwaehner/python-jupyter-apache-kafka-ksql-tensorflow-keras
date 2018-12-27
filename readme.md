@@ -1,19 +1,25 @@
-# Work in progress - NOT READY YET
+# Work in progress - NOT FINISHED YET
 
-Building a demo which combines
+## Use Case: Fraud Detection for Credit Card Payments
+We use test data set from Kaggle as foundation to train an unsupervised autoencoder to detect anomalies and potential fraud in payments. 
 
-- simplicity of data science tools* (Python, Jupyter notebooks, NumPy, etc)
-- powerful Machine Learning / Deep Learning frameworks* (TensorFlow, Keras, etc)
-- reliable, scalable event-based streaming technology* for production deployments (Apache Kafka, KSQL).
+Focus of this project is not just model training, but the whole Machine Learning infrastructure including data ingestion, data preprocessing, model training, model deployment and monitoring. All of this needs to be scalable, reliable and performant.
+
+## Technology: Python, Jupyter, TensorFlow, Keras, Apache Kafka, KSQL 
+This project shows a demo which combines
+
+- simplicity of data science tools (Python, Jupyter notebooks, NumPy, Pandas)
+- powerful Machine Learning / Deep Learning frameworks (TensorFlow, Keras)
+- reliable, scalable event-based streaming technology for production deployments (Apache Kafka, Kafka Connect, KSQL).
 
 ## Requirements
 
 - Python (tested with 3.6)
 - Java 8+ (tested with Java 8)
-- [Confluent Platform 5.0+ using Kafka + KSQL](https://www.confluent.io/download/) (tested with 5.0)
+- [Confluent Platform 5.0+ using Kafka + KSQL](https://www.confluent.io/download/) (tested with 5.1)
 - [ksql-python](https://github.com/bryanyang0528/ksql-python) (tested with Github release 5.x released on 2018-10-12)
 
-### Issues with ksql-python installation?
+### ksql-python Installation
 
 If you have problems installing ksql-python in your environment via 'pip install ksql', use the commands described in the Github project instead. 
 
@@ -23,16 +29,16 @@ After installation, for some reason, the 'from ksql import KSQLAPI' statement di
 
 We will do the following:
 
-1) Data Integration (Kafka Connect): Integrate a stream of data from CSV file or continuous data stream (in real world you can connect directly to an existing Kafka stream from the Jupyter notebook)
-2) Data Preprocessing (KSQL): Preprocess the data, e.g. filter, anonymize, aggreate / concatenate
-3) ML-specific preprocessing (NumPy, Scikit-learn): Normalize, split train / test data
-4) Train model (TensorFlow + Keras)
-5) Deploy model (KSQL + Tensorflow)
-6) Monitor model inference (KSQL)
+1) *Data Integration (Kafka Connect)*: Integrate a stream of data from CSV file or continuous data stream (in real world you can connect directly to an existing Kafka stream from the Jupyter notebook). As alternative, you can create new events manually in command line
+2) *Data Preprocessing (KSQL)*: Preprocess the data, e.g. filter, anonymize, aggreate / concatenate
+3) *Machine Learning specific preprocessing (NumPy, Pandas, Scikit-learn): Normalize, split train / test data
+4) *Model Training (TensorFlow + Keras)*
+5) *Model Deployment (KSQL + Tensorflow)*
+6) *Monitoring of Model Behaviour (KSQL)* like accuracy and performance 
 
-While all of this can be done in a Jupyter notebook for interactive analysis, we can then deploy the same pipeline to production at scale. For instance, you can re-use the KSQL preprocessing statements and run them in your production infrastructure to to model inference with KSQL and the TensorFlow model at scale.
+While all of this can be done in a Jupyter notebook for interactive analysis, we can then deploy the same pipeline to production at scale. For instance, you can re-use the KSQL preprocessing statements and run them in your production infrastructure to do model inference with KSQL and the TensorFlow model at scale on new incoming event streams.
 
-Check out [this document](https://github.com/kaiwaehner/python-jupyter-apache-kafka-ksql-tensorflow-keras/blob/master/live-demo___python-jupyter-apache-kafka-ksql-tensorflow-keras.adoc) to start the backend and notebook. The main demo is running in the Jupyter notebook then and shows all above steps.
+Check out [this step-by-step guide](https://github.com/kaiwaehner/python-jupyter-apache-kafka-ksql-tensorflow-keras/blob/master/live-demo___python-jupyter-apache-kafka-ksql-tensorflow-keras.adoc) to start the backend and notebook. The main demo is running in the Jupyter notebook 'python-jupyter-apache-kafka-ksql-tensorflow-keras.ipynb' afterwards.
 
 
 ## Autoencoder for Credit Card Fraud Detection build with Keras and TensorFlow
@@ -45,9 +51,9 @@ The goal is to lose as little information as possible. This way we can use an au
 
 ## Hands-On with Python, TensorFlow, Keras, Apache Kafka and KSQL
 
-We use KSQL for preprocessing, Numpy and scikit-learn for ML-specific tasks like array shapes or splitting training and test data, TensorFlow + Keras for model training, and Kafka Streams or KSQL for model deployment.
+We use KSQL for preprocessing, Numpy, Pandas and scikit-learn for ML-specific tasks like array shapes or splitting training and test data, TensorFlow + Keras for model training, and Kafka Streams or KSQL for model deployment and monitoring.
 
-Here is a TensorBoard screenshot of the Autoencoder:
+Here is a TensorBoard screenshot of the trained Autoencoder:
 
 ![Autoencoder for Fraud Detection (TensorBoard)](pictures/Keras_TesnsorFlow_Autoencoder_Fraud_Detection_TensorBoard.png)
 
