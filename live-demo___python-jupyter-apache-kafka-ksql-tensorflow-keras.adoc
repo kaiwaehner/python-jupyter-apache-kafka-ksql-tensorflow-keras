@@ -99,6 +99,9 @@ CREATE STREAM creditcardfraud_preprocessed_avro WITH (VALUE_FORMAT='AVRO', KAFKA
 // Mask User Name (Example: Hans => Xxns)
 SELECT Id, MASK_LEFT(User, 2) FROM creditcardfraud_source;
 
+// IFNULL(col1, retval)
+SELECT Id, IFNULL(Class, -1) FROM creditcardfraud_source;
+
 // make sure that you key your source topic for user data, otherwise you have show rekeying it KSQL which is cumbersome
 1:{user_id:1, class:platinum}
 2:{user_id:2, class:bronze}
