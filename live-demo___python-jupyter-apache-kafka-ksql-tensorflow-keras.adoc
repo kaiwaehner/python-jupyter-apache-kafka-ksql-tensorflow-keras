@@ -1,7 +1,7 @@
 = Live Demo: Python, Jupyter notebook, TensorFlow, Keras, Apache Kafka and KSQL
 
 Kai Waehner <kontakt@kai-waehner.de>
-27 Dec 2018
+28 Dec 2018
 
 This script assumes that all components like Zookeeper, Kafka, Connect, KSQL, Jupyter) use default values.
 
@@ -17,8 +17,10 @@ Either start a data generator to create a continous feed of streaming data or in
 [source,bash]
 ----
 // Start KSQL with Kafka and other dependencies
-confluent start connect
 confluent start ksql-server
+
+// Optional: Start Kafka Connect
+// confluent start connect
 
 // Create Kafka topic
 kafka-topics --zookeeper localhost:2181 --create --topic creditcardfraud_source --partitions 3 --replication-factor 1
@@ -120,7 +122,7 @@ CREATE TABLE USERS (USERID, CITY, EMAIL, CLASS) WITH (KAFKA_TOPIC='USERS',KEY='U
 // shows dropping columns (e.g. Timestamp, ID, user etc) 
 // shows dropping rows (wher V1 is greater than 5 and V2 isnot null and usernae starts with Kai
 // also switch to Avro & illustrate using bespoke kafka topic name 
-CREATE STREAM creditcardfraud WITH (VALUE_FORMAT='AVRO', KAFKA_TOPIC='fraud_prep') AS SELECT Time,  V1 , V2 , V3 , V4 , V5 , V6 , V7 , V8 , V9 , V10 , V11 , V12 , V13 , V14 , V15 , V16 , V17 , V18 , V19 , V20 , V21 , V22 , V23 , V24 , V25 , V26 , V27 , V28 , Amount , Class FROM creditcardfraud_enahnced c INNER JOIN USERS u on c.userid = u.userid WHERE V1 > 5 AND V2 IS NOT NULL AND u.CITY LIKE 'Premium%';
+CREATE STREAM creditcardfraud WITH (VALUE_FORMAT='AVRO', KAFKA_TOPIC='creditcardfraud_preprocessed_avro') AS SELECT Time,  V1 , V2 , V3 , V4 , V5 , V6 , V7 , V8 , V9 , V10 , V11 , V12 , V13 , V14 , V15 , V16 , V17 , V18 , V19 , V20 , V21 , V22 , V23 , V24 , V25 , V26 , V27 , V28 , Amount , Class FROM creditcardfraud_enahnced c INNER JOIN USERS u on c.userid = u.userid WHERE V1 > 5 AND V2 IS NOT NULL AND u.CITY LIKE 'Premium%';
 
 // DESCRIBE creditcardfraud;
 // ^ show the schema
