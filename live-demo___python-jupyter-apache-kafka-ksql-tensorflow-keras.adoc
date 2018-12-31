@@ -105,12 +105,12 @@ Some more examples how to use KSQL to preprocess and analyse the source data:
 SELECT Id, MASK_LEFT(User, 2) FROM creditcardfraud_source;
 
 // Augmentation 
-SELECT Id, IFNULL(Class, -1) FROM creditcardfraud_source;
+SELECT Id, IFNULL(Class, \'-1\') FROM creditcardfraud_source;
 
 // STREAM-TABLE-JOIN
 kafka-topics --zookeeper localhost:2181 --create --topic users --partitions 3 --replication-factor 1 
 
-CREATE TABLE users (userid varchar, gender varchar, regionid varchar) WITH (kafka_topic='users', value_format='JSON', key = 'userid');
+CREATE TABLE users (userid varchar, gender varchar, regionid varchar) WITH (kafka_topic='users', value_format='AVRO', key = 'userid');
 
 CREATE STREAM creditcardfraud_per_user WITH (VALUE_FORMAT='AVRO', KAFKA_TOPIC='creditcardfraud_per_user') AS SELECT Time, Amount, Class FROM creditcardfraud_source c INNER JOIN USERS u on c.user = u.userid WHERE u.USERID = 1;
 ----
