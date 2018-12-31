@@ -28,10 +28,10 @@ kafka-topics --zookeeper localhost:2181 --create --topic creditcardfraud_source 
 // Produce test data manually
 confluent produce creditcardfraud_source
 
-1,"2018-12-18T12:00:00Z","Kai",0,-1.3598071336738,-0.0727811733098497,2.53634673796914,1.37815522427443,-0.338320769942518,0.462387777762292,0.239598554061257,0.0986979012610507,0.363786969611213,0.0907941719789316,-0.551599533260813,-0.617800855762348,-0.991389847235408,-0.311169353699879,1.46817697209427,-0.470400525259478,0.207971241929242,0.0257905801985591,0.403992960255733,0.251412098239705,-0.018306777944153,0.277837575558899,-0.110473910188767,0.0669280749146731,0.128539358273528,-0.189114843888824,0.133558376740387,-0.0210530534538215,149.62,"0"
+1,"2018-12-18T12:00:00Z","Hans",0,-1.3598071336738,-0.0727811733098497,2.53634673796914,1.37815522427443,-0.338320769942518,0.462387777762292,0.239598554061257,0.0986979012610507,0.363786969611213,0.0907941719789316,-0.551599533260813,-0.617800855762348,-0.991389847235408,-0.311169353699879,1.46817697209427,-0.470400525259478,0.207971241929242,0.0257905801985591,0.403992960255733,0.251412098239705,-0.018306777944153,0.277837575558899,-0.110473910188767,0.0669280749146731,0.128539358273528,-0.189114843888824,0.133558376740387,-0.0210530534538215,149.62,"0"
 
 // Keep last column empty => This is sending NULL => Gets filtered out as part of the  preprocessing stream!
-1,"2018-12-18T12:00:00Z","Kai",0,-1.3598071336738,-0.0727811733098497,2.53634673796914,1.37815522427443,-0.338320769942518,0.462387777762292,0.239598554061257,0.0986979012610507,0.363786969611213,0.0907941719789316,-0.551599533260813,-0.617800855762348,-0.991389847235408,-0.311169353699879,1.46817697209427,-0.470400525259478,0.207971241929242,0.0257905801985591,0.403992960255733,0.251412098239705,-0.018306777944153,0.277837575558899,-0.110473910188767,0.0669280749146731,0.128539358273528,-0.189114843888824,0.133558376740387,-0.0210530534538215,149.62,
+1,"2018-12-18T12:00:00Z","Hans",0,-1.3598071336738,-0.0727811733098497,2.53634673796914,1.37815522427443,-0.338320769942518,0.462387777762292,0.239598554061257,0.0986979012610507,0.363786969611213,0.0907941719789316,-0.551599533260813,-0.617800855762348,-0.991389847235408,-0.311169353699879,1.46817697209427,-0.470400525259478,0.207971241929242,0.0257905801985591,0.403992960255733,0.251412098239705,-0.018306777944153,0.277837575558899,-0.110473910188767,0.0669280749146731,0.128539358273528,-0.189114843888824,0.133558376740387,-0.0210530534538215,149.62,
 ----
 
 As alternative, you can consume test data from CSV file 'creditcard_extended.csv':
@@ -89,34 +89,41 @@ CREATE STREAM creditcardfraud_source  (Id bigint, Timestamp varchar, User varcha
 // Filter messages where class is empty
 // Change data format to Avro
 CREATE STREAM creditcardfraud_preprocessed_avro WITH (VALUE_FORMAT='AVRO', KAFKA_TOPIC='creditcardfraud_preprocessed_avro') AS SELECT Time,  V1 , V2 , V3 , V4 , V5 , V6 , V7 , V8 , V9 , V10 , V11 , V12 , V13 , V14 , V15 , V16 , V17 , V18 , V19 , V20 , V21 , V22 , V23 , V24 , V25 , V26 , V27 , V28 , Amount , Class FROM creditcardfraud_source WHERE Class IS NOT NULL;
-
-
 ----
 
-== Further possible KSQL preprocessing steps (not integrated into Jupyter and the demo yet)
+== Optional additional steps to analyse and process the source data
+
+Some more examples how to use KSQL to preprocess and analyse the source data:
+
+- Anonymization
+- Augmentation
+- Merge / Join data frames
+
+[source,bash]
+----
+// Anonymization 
+SELECT Id, MASK_LEFT(User, 2) FROM creditcardfraud_source;
+
+// Augmentation 
+SELECT Id, IFNULL(Class, -1) FROM creditcardfraud_source;
+
+// STREAM-TABLE-JOIN
+kafka-topics --zookeeper localhost:2181 --create --topic users --partitions 3 --replication-factor 1 
+
+CREATE TABLE users (userid varchar, gender varchar, regionid varchar) WITH (kafka_topic='users', value_format='JSON', key = 'userid');
+
+CREATE STREAM creditcardfraud_per_user WITH (VALUE_FORMAT='AVRO', KAFKA_TOPIC='creditcardfraud_per_user') AS SELECT Time, Amount, Class FROM creditcardfraud_source c INNER JOIN USERS u on c.user = u.userid WHERE u.USERID = 1;
+----
+
+
+== Further KSQL statements for analysis and preprocessing (not integrated into Jupyter and the demo yet)
 
 [source,bash]
 ----
 
-// Mask User Name (Example: Hans => Xxns)
-SELECT Id, MASK_LEFT(User, 2) FROM creditcardfraud_source;
-
-// IFNULL(col1, retval)
-SELECT Id, IFNULL(Class, -1) FROM creditcardfraud_source;
-
-// make sure that you key your source topic for user data, otherwise you have show rekeying it KSQL which is cumbersome
-1:{user_id:1, class:platinum}
-2:{user_id:2, class:bronze}
-// console-producer --key=: 
-CREATE TABLE USERS (USERID, CITY, EMAIL, CLASS) WITH (KAFKA_TOPIC='USERS',KEY='USERID')
-// validate by SELECT ROWKEY from <table> 
-// also in PRINT 
-
 // kafka-avro-console-consumer --bootstrap-server localhost:9092 --topic creditcardfraud --from-beginning
 
 // confluent consume creditcardfraud --value-format avro --from-beginning
-
-// TODO Use AVRO as option (or at least mention this option)... Or is this making it more complex for the data scientist audience instead of just using DELIMITED?
 
 //KSQL
 // shows dropping columns (e.g. Timestamp, ID, user etc) 
@@ -165,13 +172,9 @@ SELECT TIMESTAMPTOSTRING(ROWTIME, 'yyyy-MM-dd HH:mm:ss Z'), ROWTIME , timestamp_
 SELECT * FROM creditcardfraud where STRINGTOTIMESTAMP(timestamp_col,'YYYY etc') > {epoch value}
 
 Drop column / row
-
 // drop row -> WHERE clause
 
-
-se
 // Concatenate
-
 SELECT COL1 + COL2 AS NEW_COL FROM MY_STREAM;
 SELECT CAST(COL1 AS VARCHAR) + CAST(COL2 AS VARCHAR) FROM MY_STREAM;
 SELECT COL1 || ': static value : ' || COL2 AS NEW_COL // not sure if this is still supported
@@ -185,13 +188,10 @@ SELECT SUBSTR(FULL_NAME, 1,5) FROM MY_STREAM
 // COALLESCE / CASE are the other huge missing ones
 https://github.com/confluentinc/ksql/issues/620
 
-// Anonymization
 
-https://github.com/confluentinc/ksql-recipes-try-it-at-home/tree/master/data-masking
 
 
 // Merge / Join data frames
-
 // e.g. two sources of data with the same structure
 
 CREATE STREAM website_source (SAME SCHEMA) (WITH KAFAK_TOPIC='from website')
