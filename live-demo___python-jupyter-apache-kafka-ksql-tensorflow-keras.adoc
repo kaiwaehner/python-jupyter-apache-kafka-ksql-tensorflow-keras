@@ -11,8 +11,9 @@ Id bigint, Timestamp varchar, User varchar, Time int, V1 double, V2 double, V3 d
 
 == Starting backend services
 
-First we need to start a local Kafka ecosystem to use KSQL from the Jupyter notebook. We also need to create some test data:
-Either start a data generator to create a continous feed of streaming data or integrate with a file (via Kafka Connect).This is not part of the ML related tasks, but just to get some test data into a Kafka topic:
+First we need to start a local Kafka ecosystem to use KSQL. This can be done in Jupyter or from your development environment or command line. 
+
+We also need to create some test data: Either start a data generator to create a continous feed of streaming data or integrate with a file (via Kafka Connect).This is not part of the ML related tasks, but just to get some test data into a Kafka topic:
 
 [source,bash]
 ----
