@@ -38,8 +38,23 @@ We will do the following:
 
 While all of this can be done in a Jupyter notebook for interactive analysis, we can then deploy the same pipeline to production at scale. For instance, you can re-use the KSQL preprocessing statements and run them in your production infrastructure to do model inference with KSQL and the TensorFlow model at scale on new incoming event streams.
 
+### Streaming Analytics and Preprocessing with KSQL using a Jupyter notebook
+
+Interactive analysis and data-preprocessing with Python and KSQL:
+
+![Apache Kafka + KSQL + Python for Interactive Data Processing](pictures/Apache_Kafka_KSQL_Python_Jupyter_Notebook.png)
+
+### Step-By-Step Guide
+
 Check out [this step-by-step guide](https://github.com/kaiwaehner/python-jupyter-apache-kafka-ksql-tensorflow-keras/blob/master/live-demo___python-jupyter-apache-kafka-ksql-tensorflow-keras.adoc) to start the backend and notebook. The main demo is running in the Jupyter notebook 'python-jupyter-apache-kafka-ksql-tensorflow-keras.ipynb' afterwards.
 
+### Separation between Apache Kafka Administration and KSQL Statements
+
+You can either do everything within Jupyter or separate administration commands (e.g. starting backends, creating Kafka Topics) to command line and only run KSQL commands in Jupyter. 
+
+Here is an example where even the Kafka administration in done in Jupyter:
+
+![Apache Kafka Administration in Jupyter Notebook](pictures/Jupyter_Start_Kafka_KSQL.png)
 
 ## Autoencoder for Credit Card Fraud Detection build with Keras and TensorFlow
 
@@ -56,12 +71,6 @@ We use KSQL for preprocessing, Numpy, Pandas and scikit-learn for ML-specific ta
 Here is a TensorBoard screenshot of the trained Autoencoder:
 
 ![Autoencoder for Fraud Detection (TensorBoard)](pictures/Keras_TesnsorFlow_Autoencoder_Fraud_Detection_TensorBoard.png)
-
-## Apache Kafka and KSQL within a Jupyter notebook
-
-Interactive analysis and data-preprocessing with Python and KSQL:
-
-![KSQL + Python for Interactive Data Processing](pictures/Apache_Kafka_KSQL_Python_Jupyter_Notebook.png)
 
 ## Keras model (.h5) vs. TensorFlow model (.pb)
 
