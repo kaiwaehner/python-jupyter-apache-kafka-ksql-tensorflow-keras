@@ -1,11 +1,9 @@
-# Work in progress - NOT FINISHED YET
-
-## Use Case: Fraud Detection for Credit Card Payments
+# Use Case: Fraud Detection for Credit Card Payments
 We use test data set from Kaggle as foundation to train an unsupervised autoencoder to detect anomalies and potential fraud in payments. 
 
 Focus of this project is not just model training, but the whole Machine Learning infrastructure including data ingestion, data preprocessing, model training, model deployment and monitoring. All of this needs to be scalable, reliable and performant.
 
-## Technology: Python, Jupyter, TensorFlow, Keras, Apache Kafka, KSQL 
+# Technology: Python, Jupyter, TensorFlow, Keras, Apache Kafka, KSQL 
 This project shows a demo which combines
 
 - simplicity of data science tools (Python, Jupyter notebooks, NumPy, Pandas)
@@ -25,7 +23,7 @@ If you have problems installing ksql-python in your environment via 'pip install
 
 After installation, for some reason, the 'from ksql import KSQLAPI' statement did not work with Python 2.7.x in my Jupyter notebook (but in Mac terminal), so I used Python 3.6 (which also worked in Jupyter).
 
-## Step-by-step guide
+## Live Demo using KSQL and Keras / TensorFlow from Jupyter Notebook
 
 We will do the following:
 
@@ -56,6 +54,10 @@ Here is an example where even the Kafka administration in done in Jupyter:
 
 ![Apache Kafka Administration in Jupyter Notebook](pictures/Jupyter_Start_Kafka_KSQL.png)
 
+# Additional Information (AutoEncoder, TensorBoard, TensorFlow Model Export / Import)
+
+The following describes some more details of this project like the concept of an Autoencoder, visualisation with TensorBoard and issues with exporting / importing TensorFlow models in different environments.
+
 ## Autoencoder for Credit Card Fraud Detection build with Keras and TensorFlow
 
 An autoencoder is an unsupervised neural network which encodes (i.e. compresses) the input and then decodes (i.e. decompresses) it again:
@@ -72,11 +74,17 @@ Here is a TensorBoard screenshot of the trained Autoencoder:
 
 ![Autoencoder for Fraud Detection (TensorBoard)](pictures/Keras_TesnsorFlow_Autoencoder_Fraud_Detection_TensorBoard.png)
 
-## Keras model (.h5) vs. TensorFlow model (.pb)
+## Keras model (.h5) vs. TensorFlow model (.pb) - Workarounds needed?
 
-If you want to deploy the model in a TensorFlow infrastructure like Google ML Engine, it is best to train the model with GCP's tools as describe in this [Google ML Getting Started] (https://cloud.google.com/ml-engine/docs/tensorflow/getting-started-training-prediction) guide.
+Different model serialisation mechanisms exist. Also product vendors and cloud providers add additional features (like for any other standard). Therefore, your TensorFlow model might not work everywhere out-of-the-box. 
 
-Otherwise you need to convert the H5 Keras file to a TensorFlow Protobuffers file and fulfil some more tasks, e.g. described in this [blog post](https://medium.com/google-cloud/serve-keras-models-using-google-cloud-machine-learning-services-910912238bf6).
+This will probably get better with release of [TensorFlow 2.0](Standardizing on Keras: Guidance on High-level APIs in TensorFlow 2.0) in 2019, but as of today (January 2019), you need to think about where you want to deploy your model before you train and export it.
+
+This demo uses plain Keras API. This is fine e.g. if you want to load the model via Java API from a Java application (see e.g. my [Kafka Streams + Keras + TensorFlow example](https://github.com/kaiwaehner/kafka-streams-machine-learning-examples/blob/master/src/test/java/com/github/megachucky/kafka/streams/machinelearning/test/Kafka_Streams_TensorFlow_Keras_Example_IntegrationTest.java) where I load the H5 model file). 
+
+If you want to deploy the model in a specific TensorFlow infrastructure like Google ML Engine (based on TensorFlow Serving model server), it is best to train the model with GCP's tools as described in this [Google ML Getting Started] (https://cloud.google.com/ml-engine/docs/tensorflow/getting-started-training-prediction) guide.
+
+Otherwise you need to convert the H5 Keras file to a TensorFlow Proto Buffers file and fulfil some more tasks, e.g. described in this [blog post](https://medium.com/google-cloud/serve-keras-models-using-google-cloud-machine-learning-services-910912238bf6).
 
 The Python tool [Keras to TensorFlow](https://github.com/amir-abdi/keras_to_tensorflow) is a good and simple solution:
 
@@ -84,4 +92,4 @@ The Python tool [Keras to TensorFlow](https://github.com/amir-abdi/keras_to_tens
 
 The tool freezes the nodes (converts all TF variables to TF constants), and saves the inference graph and weights into a binary protobuf (.pb) file.
 
-TODO Use keras.estimator.model_to_estimator (included in tf.keras)? Example: https://www.kaggle.com/yufengg/emnist-gpu-keras-to-tf
+You can also use keras.estimator.model_to_estimator (included in tf.keras): [Example](https://www.kaggle.com/yufengg/emnist-gpu-keras-to-tf)
