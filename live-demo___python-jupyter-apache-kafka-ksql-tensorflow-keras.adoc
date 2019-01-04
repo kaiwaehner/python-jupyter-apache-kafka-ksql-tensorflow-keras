@@ -1,7 +1,7 @@
 = Live Demo: Python, Jupyter notebook, TensorFlow, Keras, Apache Kafka and KSQL
 
 Kai Waehner <kontakt@kai-waehner.de>
-28 Dec 2018
+04 Jan 2019
 
 This script assumes that all components like Zookeeper, Kafka, Connect, KSQL, Jupyter) use default values.
 
@@ -56,6 +56,8 @@ curl -s -X POST -H 'Content-Type: application/json' http://localhost:8083/connec
 confluent status file-source
 curl -s -X DELETE localhost:8083/connectors/file-source
 ----
+
+You can also use an easy-to-use Data Generator; either as standalone script or Kafka Connect connector. More details and examples in the blog post "Easy Ways to Generate Test Data in Kafka" (https://www.confluent.io/blog/easy-ways-generate-test-data-kafka).
 
 == Demo in Jupyter Notebook
 Now go to the Jupyter Notebook 'python-jupyter-apache-kafka-ksql-tensorflow-keras.ipynb' to do the preprocessing and interactive analysis with Python + KSQL, then the model training with Python + Keras.
