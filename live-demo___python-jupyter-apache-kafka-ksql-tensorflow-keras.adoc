@@ -1,19 +1,22 @@
 = Live Demo: Python, Jupyter notebook, TensorFlow, Keras, Apache Kafka and KSQL
 
 Kai Waehner <kontakt@kai-waehner.de>
-16 Jan 2019
+18 Jan 2019
 
 This script assumes that all components like Zookeeper, Kafka, Connect, KSQL, Jupyter) use default values.
 
 We use the following test data (each row is one single payment):
 
+[source,bash]
+----
 Id bigint, Timestamp varchar, User varchar, Time int, V1 double, V2 double, V3 double, V4 double, V5 double, V6 double, V7 double, V8 double, V9 double, V10 double, V11 double, V12 double, V13 double, V14 double, V15 double, V16 double, V17 double, V18 double, V19 double, V20 double, V21 double, V22 double, V23 double, V24 double, V25 double, V26 double, V27 double, V28 double, Amount double, Class string
+----
 
 == Starting backend services
 
 First we need to start a local Kafka ecosystem to use KSQL. This can be done in Jupyter or from your development environment or command line. 
 
-We also need to create some test data: Either start a data generator to create a continous feed of streaming data, integrate with a file via a bash script, or use Kafka Connect for a real continuous data stream of any source data. 
+We also need to create some test data: Either start a data generator to create a continuous feed of streaming data, integrate with a file via a bash script, or use Kafka Connect for a real continuous data stream of any source data. 
 
 This is not part of the ML-related tasks, but just to get some test data into a Kafka topic:
 
@@ -23,7 +26,7 @@ This is not part of the ML-related tasks, but just to get some test data into a 
 confluent start ksql-server
 
 // Optional: Start Kafka Connect
-// confluent start connect
+confluent start connect
 
 // Create Kafka topic
 kafka-topics --zookeeper localhost:2181 --create --topic creditcardfraud_source --partitions 3 --replication-factor 1
@@ -63,10 +66,10 @@ curl -s -X DELETE localhost:8083/connectors/file-source
 
 ----
 
-You can also use an easy-to-use Data Generator; either as standalone script or Kafka Connect connector. More details and examples in the blog post "Easy Ways to Generate Test Data in Kafka" (https://www.confluent.io/blog/easy-ways-generate-test-data-kafka).
+You can also use an easy-to-use Kafka data generator; either as standalone script or Kafka Connect connector. See the blog post "Easy Ways to Generate Test Data in Kafka" (https://www.confluent.io/blog/easy-ways-generate-test-data-kafka)  for details and examples about the Kafka data generator.
 
 == Demo in Jupyter Notebook
-Now go to the Jupyter Notebook 'python-jupyter-apache-kafka-ksql-tensorflow-keras.ipynb' to do the preprocessing and interactive analysis with Python + KSQL, then the model training with Python + Keras.
+Now go to the Jupyter Notebook 'python-jupyter-apache-kafka-ksql-tensorflow-keras.ipynb' (https://github.com/kaiwaehner/python-jupyter-apache-kafka-ksql-tensorflow-keras/blob/master/live-demo___python-jupyter-apache-kafka-ksql-tensorflow-keras.adoc) to do the preprocessing and interactive analysis with Python + KSQL, then the model training with Python + TensorFlow / Keras.
 
 [source,bash]
 ----
@@ -74,14 +77,11 @@ Now go to the Jupyter Notebook 'python-jupyter-apache-kafka-ksql-tensorflow-kera
 jupyter notebook
 ----
 
-== Commands to create KSQL Streams and to consume events
-Some options to consume the data for testing:
+== Commands to create the KSQL Streams and to consume events
+These KSQL statements can be used from KSQL CLI (not via Python API):
 
 [source,bash]
 ----
-
-// Terminal
-confluent consume creditcardfraud_source --from-beginning
 
 // KSQL-CLI 
 SELECT * FROM creditcardfraud_source;
@@ -98,6 +98,17 @@ CREATE STREAM creditcardfraud_source  (Id bigint, Timestamp varchar, User varcha
 // Filter messages where class is empty
 // Change data format to Avro
 CREATE STREAM creditcardfraud_preprocessed_avro WITH (VALUE_FORMAT='AVRO', KAFKA_TOPIC='creditcardfraud_preprocessed_avro') AS SELECT Time,  V1 , V2 , V3 , V4 , V5 , V6 , V7 , V8 , V9 , V10 , V11 , V12 , V13 , V14 , V15 , V16 , V17 , V18 , V19 , V20 , V21 , V22 , V23 , V24 , V25 , V26 , V27 , V28 , Amount , Class FROM creditcardfraud_source WHERE Class IS NOT NULL;
+
+// Terminal
+confluent consume creditcardfraud_source --from-beginning
+----
+
+You can also oconsume the data outside of Jupyter (for instance helpful if you need to find out if a problem is due to Python issues or Kafka / KSQL issues):
+
+[source,bash]
+----
+// Terminal
+confluent consume creditcardfraud_source --from-beginning
 ----
 
 == Optional additional steps to analyse and process the source data
@@ -236,11 +247,11 @@ ksql-datagen quickstart=users format=json topic=users maxInterval=1000 propertie
 
 == Helper commands for Python, Conda, Jupyter, pip
 
-Open Jupyter notebook
+To open the Jupyter notebook, go to the folder where the '.ipynb' files are. Then:
 
 [source,bash]
 ----
-// Open Jupyter and select the notebook 'live-demo___python-jupyter-apache-kafka-ksql-tensorflow-keras.adoc'
+// Open Jupyter and select the notebook 'python-jupyter-apache-kafka-ksql-tensorflow-keras.ipynb'
 jupyter notebook
 ----
 
