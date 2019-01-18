@@ -6,7 +6,7 @@ Focus of this project is not just model training, but the whole Machine Learning
 # Technology: Python, Jupyter, TensorFlow, Keras, Apache Kafka, KSQL 
 This project shows a demo which combines
 
-- simplicity of data science tools (Python, Jupyter notebooks, NumPy, Pandas)
+- simplicity of data science tools (Python, Jupyter notebooks, NumPy, pandas)
 - powerful Machine Learning / Deep Learning frameworks (TensorFlow, Keras)
 - reliable, scalable event-based streaming technology for production deployments (Apache Kafka, Kafka Connect, KSQL).
 
@@ -29,7 +29,7 @@ We will do the following:
 
 1) *Data Integration (Kafka Connect)*: Integrate a stream of data from CSV file or continuous data stream (in real world you can connect directly to an existing Kafka stream from the Jupyter notebook). As alternative, you can create new events manually in command line
 2) *Data Preprocessing (KSQL)*: Preprocess the data, e.g. filter, anonymize, aggreate / concatenate
-3) *Machine Learning specific preprocessing (NumPy, Pandas, Scikit-learn): Normalize, split train / test data
+3) *Machine Learning specific preprocessing (NumPy, pandas, Scikit-learn): Normalize, split train / test data
 4) *Model Training (TensorFlow + Keras)*
 5) *Model Deployment (KSQL + Tensorflow)*
 6) *Monitoring of Model Behaviour (KSQL)* like accuracy and performance 
@@ -48,7 +48,7 @@ Check out [this step-by-step guide](https://github.com/kaiwaehner/python-jupyter
 
 ### Separation between Apache Kafka Administration and KSQL Statements
 
-You can either do everything within Jupyter or separate administration commands (e.g. starting backends, creating Kafka Topics) to command line and only run KSQL commands in Jupyter. 
+You can either do everything within Jupyter or separate administration commands such as starting backends or creating Kafka Topics to command line and only run KSQL commands in Jupyter. 
 
 Here is an example where even the Kafka administration in done in Jupyter:
 
@@ -68,23 +68,23 @@ The goal is to lose as little information as possible. This way we can use an au
 
 ## Hands-On with Python, TensorFlow, Keras, Apache Kafka and KSQL
 
-We use KSQL for preprocessing, Numpy, Pandas and scikit-learn for ML-specific tasks like array shapes or splitting training and test data, TensorFlow + Keras for model training, and Kafka Streams or KSQL for model deployment and monitoring.
+We use KSQL for preprocessing, Numpy, pandas and scikit-learn for ML-specific tasks like array shapes or splitting training and test data, TensorFlow + Keras for model training, and Kafka Streams or KSQL for model deployment and monitoring.
 
 Here is a TensorBoard screenshot of the trained Autoencoder:
 
 ![Autoencoder for Fraud Detection (TensorBoard)](pictures/Keras_TesnsorFlow_Autoencoder_Fraud_Detection_TensorBoard.png)
 
-## Keras model (.h5) vs. TensorFlow model (.pb) - Workarounds needed?
+## TensorFlow Model Serialisation - Keras model (.h5) vs. TensorFlow model (.pb)
 
 Different model serialisation mechanisms exist. Also product vendors and cloud providers add additional features (like for any other standard). Therefore, your TensorFlow model might not work everywhere out-of-the-box. 
 
-This will probably get better with release of [TensorFlow 2.0](Standardizing on Keras: Guidance on High-level APIs in TensorFlow 2.0) in 2019, but as of today (January 2019), you need to think about where you want to deploy your model before you train and export it.
+This will probably get better with release of [TensorFlow 2.0](https://medium.com/tensorflow/standardizing-on-keras-guidance-on-high-level-apis-in-tensorflow-2-0-bad2b04c819a) in 2019, but as of today (January 2019), you need to think about where you want to deploy your model before you train and export it.
 
 This demo uses plain Keras API. This is fine e.g. if you want to load the model via Java API from a Java application (see e.g. my [Kafka Streams + Keras + TensorFlow example](https://github.com/kaiwaehner/kafka-streams-machine-learning-examples/blob/master/src/test/java/com/github/megachucky/kafka/streams/machinelearning/test/Kafka_Streams_TensorFlow_Keras_Example_IntegrationTest.java) where I load the H5 model file). 
 
 If you want to deploy the model in a specific TensorFlow infrastructure like Google ML Engine (based on TensorFlow Serving model server), it is best to train the model with GCP's tools as described in this [Google ML Getting Started] (https://cloud.google.com/ml-engine/docs/tensorflow/getting-started-training-prediction) guide.
 
-Otherwise you need to convert the H5 Keras file to a TensorFlow Proto Buffers file and fulfil some more tasks, e.g. described in this [blog post](https://medium.com/google-cloud/serve-keras-models-using-google-cloud-machine-learning-services-910912238bf6).
+Otherwise, you need to convert the H5 Keras file to a TensorFlow Proto Buffers file and fulfil some more tasks, e.g. described in this [blog post](https://medium.com/google-cloud/serve-keras-models-using-google-cloud-machine-learning-services-910912238bf6).
 
 The Python tool [Keras to TensorFlow](https://github.com/amir-abdi/keras_to_tensorflow) is a good and simple solution:
 
