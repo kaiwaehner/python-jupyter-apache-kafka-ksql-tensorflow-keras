@@ -1,14 +1,21 @@
-# Use Case: Fraud Detection for Credit Card Payments
-We use test data set from Kaggle as foundation to train an unsupervised autoencoder to detect anomalies and potential fraud in payments. 
-
-Focus of this project is not just model training, but the whole Machine Learning infrastructure including data ingestion, data preprocessing, model training, model deployment and monitoring. All of this needs to be scalable, reliable and performant.
-
 # Technology: Python, Jupyter, TensorFlow, Keras, Apache Kafka, KSQL 
+
 This project shows a demo which combines
 
 - simplicity of data science tools (Python, Jupyter notebooks, NumPy, pandas)
 - powerful Machine Learning / Deep Learning frameworks (TensorFlow, Keras)
 - reliable, scalable event-based streaming technology for production deployments (Apache Kafka, Kafka Connect, KSQL).
+
+If you want to learn more about the relation between the Apache Kafka open source ecosystem and Machine Learning, please check out these two blog posts:
+
+- [How to Build and Deploy Scalable Machine Learning in Production with Apache Kafka](https://www.confluent.io/blog/build-deploy-scalable-machine-learning-production-apache-kafka/)
+- [Using Apache Kafka to Drive Cutting-Edge Machine Learning](https://www.confluent.io/blog/using-apache-kafka-drive-cutting-edge-machine-learning)
+
+# Use Case: Fraud Detection for Credit Card Payments
+
+We use test data set from Kaggle as foundation to train an unsupervised autoencoder to detect anomalies and potential fraud in payments. 
+
+Focus of this project is not just model training, but the whole Machine Learning infrastructure including data ingestion, data preprocessing, model training, model deployment and monitoring. All of this needs to be scalable, reliable and performant.
 
 ## Requirements
 
